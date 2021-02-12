@@ -1,0 +1,67 @@
+{
+  "streamingServices": [
+    {
+      "id": 0,
+      "name": "Show me all available streaming options",
+      "logo": "",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 1,
+      "name": "Netflix",
+      "logo": "https://i.ibb.co/zffvTRq/Netflix.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 2,
+      "name": "Prime Video",
+      "logo": "https://i.ibb.co/1Mtszy5/Prime-Video.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 3,
+      "name": "HBO Go",
+      "logo": "https://i.ibb.co/942ztn3/HBOGo.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 4,
+      "name": "HBO Max",
+      "logo": "https://i.ibb.co/swMjHPg/HBOMax.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 5,
+      "name": "Apple TV+",
+      "logo": "https://i.ibb.co/LRdKLbr/AppleTV.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 6,
+      "name": "Disney+",
+      "logo": "https://i.ibb.co/NZCyqmq/Disney.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 7,
+      "name": "Hulu",
+      "logo": "https://i.ibb.co/bRB9ZJm/Hulu.png",
+      "url": "",
+      "countries": ""
+    },
+    {
+      "id": 8,
+      "name": "Peacock",
+      "logo": "https://i.ibb.co/tcnhCzd/Peacock.png",
+      "url": "",
+      "countries": ""
+    }
+  ]
+}
