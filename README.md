@@ -6,5 +6,5 @@ Currently, the extension covers 44 countries.
 
 
 TO DO
-add more websites
-refactor code to ES6 standard
+- add more websites
+- refactor code to ES6 standard
