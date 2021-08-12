@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Where to Stream",
   "short_name": "WhereToStream",
-  "version": "1.0",
+  "version": "1.4",
   "description": "Find out if a certain movie or TV show is available for streaming in your country.",
 
   "content_scripts": [
@@ -11,7 +11,10 @@
         "https://www.imdb.com/*",
         "https://www.metacritic.com/*",
         "https://www.rottentomatoes.com/*",
-        "https://letterboxd.com/*"
+        "https://letterboxd.com/*",
+        "https://www.cinemagia.ro/*",
+        "https://www.crunchyroll.com/*",
+        "https://myanimelist.net/*"
       ],
       "js": ["content.js"]
     }

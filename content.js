@@ -5,8 +5,7 @@ let selectedPopupNotification = null;
 let selectedRentBuy = null;
 let selectedSimilar = null;
 
-const API_KEY = "";
-const API_KEY_GEOLOCATION = "";
+const API_KEY = "1e44c8d234273862cf6c45b894005641";
 const FLAG_ICON_BASE_URL = "https://flagcdn.com/";
 
 /**
@@ -16,9 +15,19 @@ const FLAG_ICON_BASE_URL = "https://flagcdn.com/";
 /**
  * Whenever a webpage is loaded, show the extension badge
  */
-window.onload = function () {
-  showBadge();
-};
+
+ let triggeredShowBadge = false;
+ window.onload = function () {
+   if (!triggeredShowBadge) {
+     showBadge();
+     triggeredShowBadge = true;
+   }
+ };
+ 
+ if (!triggeredShowBadge && document.readyState === "complete") {
+   showBadge();
+   triggeredShowBadge = true;
+ }
 
 /**
  * Add event listenters to elements on DOM content load
@@ -555,7 +564,7 @@ async function showBadge() {
   ] = await getUserPreferences();
 
   let { title, genre, year } = getMovieDetailsFromWebsite();
-
+  
   if (selectedCountry) {
     if (title) {
       getMovie(title, genre, year).then((movie) => {
@@ -999,13 +1008,14 @@ async function createCountriesList() {
           let container = document.querySelector(".custom-options");
 
           const countryByIp = await getCountryByIP();
+          if (countryByIp) {
+            let isCountrySupported = countriesJson.countries.find(
+              (country) => country.countryCode === countryByIp
+            );
 
-          let isCountrySupported = countriesJson.countries.find(
-            (country) => country.countryCode === countryByIp
-          );
-
-          if (!selectedCountry && isCountrySupported) {
-            selectedCountry = countryByIp;
+            if (!selectedCountry && isCountrySupported) {
+              selectedCountry = countryByIp;
+            }
           }
 
           countriesJson.countries.forEach((country) => {
@@ -1190,29 +1200,19 @@ function getMovieDetailsFromWebsite() {
 
   // imdb.com
   if (URL.indexOf("imdb.com") > -1) {
-    title = document.querySelector(".title_wrapper > h1");
-    if (title) {
-      // old imdb
-      genre = document.querySelector(".np_episode_guide");
-      year = document.querySelector("#titleYear");
-      year = year == null ? "" : year.innerText;
-      title =
-        year == "" ? title.innerText : title.innerText.replace(`${year}`, "");
-      genre = genre == null ? "movie" : "tv";
-
-      year = year.replace("(", "").replace(")", "");
-    } else {
-      // new imdb
-      title = document.querySelector(".cLLqtE");
-      title = title == null ? "" : title.innerText;
-
-      genre = document.querySelector(".episode-guide-text");
-      genre = genre == null ? "movie" : "tv";
-
-      year = null;
+    if (document.querySelector('script[type="application/ld+json"]')) {
+      const jsonld = JSON.parse(document.querySelector('script[type="application/ld+json"]').innerText);
+      const fullTitle = document.querySelector("meta[property='og:title']").getAttribute('content');
+      const yearPattern = /\(([\d]{4})\)/;
+  
+      title = jsonld.name;
+      genre = jsonld['@type'] == 'Movie' ? 'movie' : 'tv';
+      year = fullTitle.match(yearPattern) ? yearPattern.exec(fullTitle)[1] : null;
+      allowedSite = true;
+  
+      return { title, genre, year };
+  
     }
-
-    return { title, genre, year };
   }
 
   // letterboxd.com
@@ -1221,6 +1221,30 @@ function getMovieDetailsFromWebsite() {
     title = title == null ? "" : title.innerText;
     year = null;
     genre = "movie";
+
+    return { title, genre, year };
+  }
+
+  // cinemagia.ro
+  if (URL.indexOf("cinemagia.ro/filme/") > -1) {
+    const jsonld = JSON.parse(document.querySelector('script[type="application/ld+json"]').innerText);
+    const fullTitle = document.querySelector("meta[property='og:title']").getAttribute('content');
+    const yearPattern = /\(([\d]{4})\)/;
+
+    title = jsonld.name;
+    genre = jsonld['@type'] == 'Movie' ? 'movie' : 'tv';
+    year = fullTitle.match(yearPattern) ? yearPattern.exec(fullTitle)[1] : null;   
+    
+    return { title, genre, year };
+  }
+
+  // MyAnimeList
+  if (URL.indexOf("myanimelist.net") > -1) {
+    title = document.querySelector(".title-name");
+    title = title == null ? "" : title.innerText;
+    year = null;
+    genre = "tv";
+    allowedSite = true;
 
     return { title, genre, year };
   }
@@ -1278,9 +1302,14 @@ async function getSimilarMovies(movieId, genre, page) {
  * get the IP address
  */
 async function getIPAddress() {
-  const response = await fetch("https://ip.seeip.org/json");
-  const data = await response.json();
-  return data;
+  try {
+    const response = await fetch("https://ip.seeip.org/json");
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
 
 /**
@@ -1288,10 +1317,18 @@ async function getIPAddress() {
  */
 async function getCountryByIP() {
   const ipAddress = await getIPAddress();
-  const response = await fetch(
-    `https://api.astroip.co/${ipAddress.ip}/?api_key=${API_KEY_GEOLOCATION}`
-  );
-  const data = await response.json();
-  return data && data.geo ? data.geo.country_code : null;
+  
+  try {
+    const response = await fetch(`https://ipapi.co/${ipAddress.ip}/json`);
+    if (!response.ok) {
+        throw new Error(response.statusText);
+    }
+    const data = await response.json();
+    return data ? data.country_code : null;
+  } catch (err) {
+      console.log(err);
+      return null;
+  }
+
 }
 /* -------------------------------------------------------------------- */

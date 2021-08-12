@@ -66,31 +66,19 @@
 
   // imdb.com
   if (URL.indexOf("imdb.com") > -1) {
-    title = document.querySelector(".title_wrapper > h1");
-    if (title) {
-      // old imdb
-      genre = document.querySelector(".np_episode_guide");
-      year = document.querySelector("#titleYear");
-      year = year == null ? "" : year.innerText;
-      title =
-        year == "" ? title.innerText : title.innerText.replace(`${year}`, "");
-      genre = genre == null ? "movie" : "tv";
-
-      year = year.replace("(", "").replace(")", "");
-    } else {
-      // new imdb
-      title = document.querySelector(".cLLqtE");
-      title = title == null ? "" : title.innerText;
-
-      genre = document.querySelector(".episode-guide-text");
-      genre = genre == null ? "movie" : "tv";
-
-      year = null;
+    if (document.querySelector('script[type="application/ld+json"]')) {
+      const jsonld = JSON.parse(document.querySelector('script[type="application/ld+json"]').innerText);
+      const fullTitle = document.querySelector("meta[property='og:title']").getAttribute('content');
+      const yearPattern = /\(([\d]{4})\)/;
+  
+      title = jsonld.name;
+      genre = jsonld['@type'] == 'Movie' ? 'movie' : 'tv';
+      year = fullTitle.match(yearPattern) ? yearPattern.exec(fullTitle)[1] : null;
+      allowedSite = true;
+  
+      return { title, genre, year };
+  
     }
-
-    allowedSite = true;
-
-    return { title, genre, year };
   }
 
   // letterboxd.com
@@ -99,6 +87,30 @@
     title = title == null ? "" : title.innerText;
     year = null;
     genre = "movie";
+    allowedSite = true;
+
+    return { title, genre, year };
+  }
+
+  // cinemagia.ro
+  if (URL.indexOf("cinemagia.ro/filme/") > -1) {
+    const jsonld = JSON.parse(document.querySelector('script[type="application/ld+json"]').innerText);
+    const fullTitle = document.querySelector("meta[property='og:title']").getAttribute('content');
+    const yearPattern = /\(([\d]{4})\)/;
+
+    title = jsonld.name;
+    genre = jsonld['@type'] == 'Movie' ? 'movie' : 'tv';
+    year = fullTitle.match(yearPattern) ? yearPattern.exec(fullTitle)[1] : null;   
+
+    return { title, genre, year };
+  }
+
+  // MyAnimeList
+  if (URL.indexOf("myanimelist.net") > -1) {
+    title = document.querySelector(".title-name");
+    title = title == null ? "" : title.innerText;
+    year = null;
+    genre = "tv";
     allowedSite = true;
 
     return { title, genre, year };
